@@ -26,6 +26,9 @@ export const Dashboard = () => {
     }));
   }, [selectedYear, getYearlyAnalysis]);
 
+  const hasIncomeData = monthlyData.some(d => d.income !== 0);
+  const hasExpenseData = monthlyData.some(d => d.expenses !== 0);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
@@ -40,25 +43,27 @@ export const Dashboard = () => {
               <p className="text-xl sm:text-2xl font-bold">€{totalIncome.toFixed(2)}</p>
             </div>
           </div>
-          <div className="mt-4 flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="incomeSpark" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area
-                  type="monotone"
-                  dataKey="income"
-                  stroke="#10b981"
-                  fill="url(#incomeSpark)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {hasIncomeData && (
+            <div className="mt-4 flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="incomeSpark" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.6} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="income"
+                    stroke="#10b981"
+                    fill="url(#incomeSpark)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
         
         {/* Ausgaben Card */}
@@ -70,25 +75,27 @@ export const Dashboard = () => {
               <p className="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400">€{totalExpenses.toFixed(2)}</p>
             </div>
           </div>
-          <div className="mt-4 flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="expenseSpark" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="#f43f5e"
-                  fill="url(#expenseSpark)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {hasExpenseData && (
+            <div className="mt-4 flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="expenseSpark" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.6} />
+                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="expenses"
+                    stroke="#f43f5e"
+                    fill="url(#expenseSpark)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       </div>
 
