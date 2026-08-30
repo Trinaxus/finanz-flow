@@ -1,0 +1,174 @@
+import React, { useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
+import { CalendarDays } from 'lucide-react';
+import { useStore } from '../store';
+import { formatMonth } from '../utils/dateUtils';
+import { getCategoryColor } from './CategoryAnalysis';
+
+export const MonthlyComparison = () => {
+  const { transactions, selectedYear, setSelectedMonth } = useStore();
+
+  const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+  const { categories, chartData, yDomain, yTicks } = useMemo(() => {
+    const categorySet = new Set<string>();
+    const data = Array.from({ length: 12 }, (_, month) => {
+      const monthTransactions = transactions.filter(t => {
+        const date = new Date(t.date);
+        return !t.isPending &&
+               date.getMonth() === month &&
+               date.getFullYear() === selectedYear;
+      });
+      const categoryTotals = monthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((acc, t) => {
+          acc[t.category] = (acc[t.category] || 0) - t.amount;
+          categorySet.add(t.category);
+          return acc;
+        }, {} as Record<string, number>);
+      const income = monthTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      return {
+        name: `${monthNames[month]} ${selectedYear}`,
+        month,
+        ...categoryTotals,
+        Einnahmen: income
+      } as Record<string, number | string>;
+    });
+    const sortedCategories = Array.from(categorySet).sort();
+    const dataMax = Math.max(...data.map(d => Number(d['Einnahmen']) || 0), 0);
+    const dataMin = Math.min(...data.map(d => {
+      return sortedCategories.reduce((sum, c) => sum + (Number(d[c]) || 0), 0);
+    }), 0);
+
+    const yMin = Math.floor(dataMin * 1.05 / 100) * 100;
+    const yMax = Math.ceil(dataMax * 1.05 / 100) * 100;
+    const roundTo100 = (n: number) => Math.round(n / 100) * 100;
+    const yDomain: [number, number] = [yMin, yMax];
+    const yTicks = [yMin, roundTo100(yMin / 2), 0, roundTo100(yMax / 2), yMax];
+
+    return { categories: sortedCategories, chartData: data, yDomain, yTicks };
+  }, [transactions, selectedYear, monthNames]);
+
+  // Angepasstes Tooltip-Design
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const income = payload.find((e: any) => e.dataKey === 'Einnahmen');
+      const expenseEntries = payload.filter((e: any) => e.dataKey !== 'Einnahmen');
+      const totalExpenses = expenseEntries.reduce((sum: number, e: any) => sum + Math.abs(e.value), 0);
+      const totalIncome = income ? income.value : 0;
+      return (
+        <div className="backdrop-blur-md bg-gray-900/80 dark:bg-gray-800/80 p-4 rounded-lg shadow-lg border border-gray-700/50">
+          <p className="text-gray-200 font-medium mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p
+              key={`item-${index}`}
+              className="text-sm"
+              style={{ color: entry.color }}
+            >
+              {entry.name}: {entry.value > 0 ? '+' : ''}{entry.value.toFixed(2)}€
+            </p>
+          ))}
+          <div className="mt-2 pt-2 border-t border-gray-700/50 space-y-1">
+            <p className="text-sm font-medium text-emerald-400">
+              Gesamteinnahmen: {totalIncome.toFixed(2)}€
+            </p>
+            <p className="text-sm font-medium text-rose-400">
+              Gesamtausgaben: {totalExpenses.toFixed(2)}€
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <CalendarDays className="w-6 h-6 text-purple-600" />
+        <h2 className="text-xl font-display">Monatsvergleich</h2>
+      </div>
+      
+      <div className="h-[620px] rounded-2xl bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm p-6 border border-gray-200/10">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} barGap={-24} barCategoryGap="20%" margin={{ top: 10, right: 10, bottom: 90, left: 0 }}>
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="#4b5563" 
+              strokeOpacity={0.5} 
+            />
+            <XAxis
+              dataKey="name"
+              tick={{ fontSize: 11, fill: '#6b7280', fontFamily: 'Inter, system-ui, sans-serif' }}
+              tickLine={false}
+              axisLine={{ stroke: '#374151' }}
+            />
+            <YAxis
+              domain={yDomain}
+              ticks={yTicks}
+              tick={{ fontSize: 11, fill: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif' }}
+              tickLine={false}
+              axisLine={{ stroke: '#6b7280' }}
+              tickFormatter={(v) => `${v}€`}
+              width={70}
+            />
+            <ReferenceLine y={0} stroke="#6b7280" strokeWidth={1} strokeDasharray="3 3" />
+            <Tooltip 
+              content={<CustomTooltip />}
+              cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+            />
+            <Legend
+              content={({ payload }) => (
+                <div className="flex flex-wrap justify-center gap-2 pt-5">
+                  {payload?.map((entry: any) => {
+                    const color = entry.color as string;
+                    return (
+                      <span
+                        key={entry.value}
+                        className="px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: color + '33', color }}
+                      >
+                        {entry.value}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            />
+            {categories.map((category) => (
+              <Bar
+                key={category}
+                dataKey={category}
+                name={category}
+                stackId="expenses"
+                barSize={24}
+                fill={getCategoryColor(category)}
+                onClick={(data: any) => {
+                  if (data && typeof data.month === 'number') {
+                    setSelectedMonth(data.month);
+                  }
+                }}
+                cursor="pointer"
+              />
+            ))}
+            <Bar
+              dataKey="Einnahmen"
+              name="Einnahmen"
+              stackId="income"
+              barSize={24}
+              fill="#10b981"
+              onClick={(data: any) => {
+                if (data && typeof data.month === 'number') {
+                  setSelectedMonth(data.month);
+                }
+              }}
+              cursor="pointer"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
