@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { CalendarDays } from 'lucide-react';
 import { useStore } from '../store';
@@ -176,7 +176,7 @@ export const MonthlyComparison = () => {
               }}
             />
             {categories.map((category) => (
-              <React.Fragment key={category}>
+              <Fragment key={category}>
                 <Bar
                   dataKey={`pos_${category}`}
                   name={category}
@@ -203,7 +203,7 @@ export const MonthlyComparison = () => {
                   }}
                   cursor="pointer"
                 />
-              </React.Fragment>
+              </Fragment>
             ))}
           </BarChart>
         </ResponsiveContainer>
