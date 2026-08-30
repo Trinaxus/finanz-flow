@@ -26,12 +26,21 @@ export const MonthlyComparison = () => {
           categorySet.add(t.category);
           return acc;
         }, {} as Record<string, number>);
-      return {
+
+      const row: Record<string, number | string> = {
         name: `${monthNames[month]} ${selectedYear}`,
-        month,
-        ...categoryTotals
-      } as Record<string, number | string>;
+        month
+      };
+
+      for (const [category, value] of Object.entries(categoryTotals)) {
+        row[category] = value;
+        row[`pos_${category}`] = value > 0 ? value : 0;
+        row[`neg_${category}`] = value < 0 ? value : 0;
+      }
+
+      return row;
     });
+
     const sortedCategories = Array.from(categorySet).sort();
     const dataMax = Math.max(...data.map(d => {
       return sortedCategories.reduce((sum, c) => sum + Math.max(Number(d[c]) || 0, 0), 0);
@@ -52,7 +61,9 @@ export const MonthlyComparison = () => {
   // Angepasstes Tooltip-Design
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const sortedPayload = [...payload].sort((a: any, b: any) => (b.value || 0) - (a.value || 0));
+      const sortedPayload = [...payload]
+        .filter((e: any) => Math.abs(e.value || 0) > 0.001)
+        .sort((a: any, b: any) => (b.value || 0) - (a.value || 0));
       const totalIncome = sortedPayload.reduce((sum: number, e: any) => sum + (e.value > 0 ? e.value : 0), 0);
       const totalExpenses = sortedPayload.reduce((sum: number, e: any) => sum + (e.value < 0 ? Math.abs(e.value) : 0), 0);
       return (
@@ -80,6 +91,14 @@ export const MonthlyComparison = () => {
     }
     return null;
   };
+
+  const categoryColors = useMemo(() => {
+    const colors: Record<string, string> = {};
+    categories.forEach(c => {
+      colors[c] = getCategoryColor(c);
+    });
+    return colors;
+  }, [categories]);
 
   return (
     <div className="space-y-4">
@@ -117,38 +136,60 @@ export const MonthlyComparison = () => {
               cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
             />
             <Legend
-              content={({ payload }) => (
-                <div className="flex flex-wrap justify-center gap-2 pt-5">
-                  {payload?.map((entry: any) => {
-                    const color = entry.color as string;
-                    return (
-                      <span
-                        key={entry.value}
-                        className="px-2 py-0.5 rounded-full text-xs font-medium"
-                        style={{ backgroundColor: color + '33', color }}
-                      >
-                        {entry.value}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
+              content={({ payload }) => {
+                const seen = new Set<string>();
+                const unique = payload?.filter((entry: any) => {
+                  if (seen.has(entry.value)) return false;
+                  seen.add(entry.value);
+                  return true;
+                });
+                return (
+                  <div className="flex flex-wrap justify-center gap-2 pt-5">
+                    {unique?.map((entry: any) => {
+                      const color = entry.color as string;
+                      return (
+                        <span
+                          key={entry.value}
+                          className="px-2 py-0.5 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: color + '33', color }}
+                        >
+                          {entry.value}
+                        </span>
+                      );
+                    })}
+                  </div>
+                );
+              }}
             />
             {categories.map((category) => (
-              <Bar
-                key={category}
-                dataKey={category}
-                name={category}
-                stackId="stack"
-                barSize={24}
-                fill={getCategoryColor(category)}
-                onClick={(data: any) => {
-                  if (data && typeof data.month === 'number') {
-                    setSelectedMonth(data.month);
-                  }
-                }}
-                cursor="pointer"
-              />
+              <React.Fragment key={category}>
+                <Bar
+                  dataKey={`pos_${category}`}
+                  name={category}
+                  stackId="pos"
+                  barSize={24}
+                  fill={categoryColors[category]}
+                  onClick={(data: any) => {
+                    if (data && typeof data.month === 'number') {
+                      setSelectedMonth(data.month);
+                    }
+                  }}
+                  cursor="pointer"
+                />
+                <Bar
+                  dataKey={`neg_${category}`}
+                  name={category}
+                  stackId="neg"
+                  barSize={24}
+                  fill={categoryColors[category]}
+                  onClick={(data: any) => {
+                    if (data && typeof data.month === 'number') {
+                      setSelectedMonth(data.month);
+                    }
+                  }}
+                  cursor="pointer"
+                />
+              </React.Fragment>
             ))}
           </BarChart>
         </ResponsiveContainer>
