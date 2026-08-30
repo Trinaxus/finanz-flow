@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Moon, Sun, Menu, ChevronDown, X, BarChart3, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Moon, Sun, Menu, ChevronDown, X, BarChart3, Sparkles, Maximize, Minimize } from 'lucide-react';
 import { useStore } from '../store';
 
 export const Header = () => {
@@ -9,6 +9,26 @@ export const Header = () => {
   const toggleNeuralBackground = useStore((state) => state.toggleNeuralBackground);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error('Vollbild fehlgeschlagen', err);
+    }
+  };
 
   const navigation = {
     Übersicht: {
@@ -107,6 +127,14 @@ export const Header = () => {
               aria-label="Toggle neural background"
             >
               <Sparkles className="w-5 h-5" />
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+              aria-label="Vollbild"
+              title="Vollbild"
+            >
+              {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
             </button>
           </nav>
 
