@@ -28,7 +28,17 @@ export const SavingsOverview = () => {
     return Array.from(years).sort((a, b) => b - a);
   }, [dataYears, selectedYear]);
 
-  const savingsTransactions = allSavingsTransactions.filter(t => new Date(t.date).getFullYear() === selectedYear);
+  const savingsTransactions = useMemo(
+    () => allSavingsTransactions.filter(t => new Date(t.date).getFullYear() === selectedYear),
+    [allSavingsTransactions, selectedYear]
+  );
+
+  const listTransactions = useMemo(
+    () => viewMode === 'total'
+      ? [...allSavingsTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      : [...savingsTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [allSavingsTransactions, savingsTransactions, viewMode]
+  );
 
   const initialData = Array.from({ length: 12 }, (_, i) => ({
     date: `${selectedYear}-${String(i).padStart(2, '0')}`,
@@ -272,7 +282,7 @@ export const SavingsOverview = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200/10 dark:divide-gray-700/30">
-                {savingsTransactions.map((transaction, index) => (
+                {listTransactions.map((transaction, index) => (
                   <tr
                     key={transaction.id}
                     className={`text-sm transition-colors hover:bg-gray-200/20 dark:hover:bg-gray-700/30 ${
