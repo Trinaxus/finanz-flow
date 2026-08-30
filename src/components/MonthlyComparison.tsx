@@ -20,26 +20,24 @@ export const MonthlyComparison = () => {
                date.getFullYear() === selectedYear;
       });
       const categoryTotals = monthTransactions
-        .filter(t => t.type === 'expense')
         .reduce((acc, t) => {
-          acc[t.category] = (acc[t.category] || 0) - t.amount;
+          const amount = t.type === 'income' ? t.amount : -t.amount;
+          acc[t.category] = (acc[t.category] || 0) + amount;
           categorySet.add(t.category);
           return acc;
         }, {} as Record<string, number>);
-      const income = monthTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
       return {
         name: `${monthNames[month]} ${selectedYear}`,
         month,
-        ...categoryTotals,
-        Einnahmen: income
+        ...categoryTotals
       } as Record<string, number | string>;
     });
     const sortedCategories = Array.from(categorySet).sort();
-    const dataMax = Math.max(...data.map(d => Number(d['Einnahmen']) || 0), 0);
+    const dataMax = Math.max(...data.map(d => {
+      return sortedCategories.reduce((sum, c) => sum + Math.max(Number(d[c]) || 0, 0), 0);
+    }), 0);
     const dataMin = Math.min(...data.map(d => {
-      return sortedCategories.reduce((sum, c) => sum + (Number(d[c]) || 0), 0);
+      return sortedCategories.reduce((sum, c) => sum + Math.min(Number(d[c]) || 0, 0), 0);
     }), 0);
 
     const yMin = Math.floor(dataMin * 1.05 / 100) * 100;
@@ -54,14 +52,13 @@ export const MonthlyComparison = () => {
   // Angepasstes Tooltip-Design
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const income = payload.find((e: any) => e.dataKey === 'Einnahmen');
-      const expenseEntries = payload.filter((e: any) => e.dataKey !== 'Einnahmen');
-      const totalExpenses = expenseEntries.reduce((sum: number, e: any) => sum + Math.abs(e.value), 0);
-      const totalIncome = income ? income.value : 0;
+      const sortedPayload = [...payload].sort((a: any, b: any) => (b.value || 0) - (a.value || 0));
+      const totalIncome = sortedPayload.reduce((sum: number, e: any) => sum + (e.value > 0 ? e.value : 0), 0);
+      const totalExpenses = sortedPayload.reduce((sum: number, e: any) => sum + (e.value < 0 ? Math.abs(e.value) : 0), 0);
       return (
         <div className="backdrop-blur-md bg-gray-900/80 dark:bg-gray-800/80 p-4 rounded-lg shadow-lg border border-gray-700/50">
           <p className="text-gray-200 font-medium mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {sortedPayload.map((entry: any, index: number) => (
             <p
               key={`item-${index}`}
               className="text-sm"
@@ -142,7 +139,7 @@ export const MonthlyComparison = () => {
                 key={category}
                 dataKey={category}
                 name={category}
-                stackId="expenses"
+                stackId="stack"
                 barSize={24}
                 fill={getCategoryColor(category)}
                 onClick={(data: any) => {
@@ -153,19 +150,6 @@ export const MonthlyComparison = () => {
                 cursor="pointer"
               />
             ))}
-            <Bar
-              dataKey="Einnahmen"
-              name="Einnahmen"
-              stackId="income"
-              barSize={24}
-              fill="#10b981"
-              onClick={(data: any) => {
-                if (data && typeof data.month === 'number') {
-                  setSelectedMonth(data.month);
-                }
-              }}
-              cursor="pointer"
-            />
           </BarChart>
         </ResponsiveContainer>
       </div>
