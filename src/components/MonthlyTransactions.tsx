@@ -263,10 +263,10 @@ export const MonthlyTransactions = () => {
       <div className="rounded-2xl bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/10 overflow-hidden">
         {monthlyTransactions.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[540px]">
               <thead className="bg-gray-200/50 dark:bg-gray-900/50 border-b border-gray-300/50 dark:border-gray-700/50">
                 <tr>
-                  <th className="px-4 py-3 text-left">
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left">
                     <input
                       type="checkbox"
                       checked={selectedIds.length === monthlyTransactions.length && monthlyTransactions.length > 0}
@@ -274,11 +274,11 @@ export const MonthlyTransactions = () => {
                       className="w-4 h-4 rounded"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-display tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-display tracking-wider">Datum</th>
-                  <th className="px-4 py-3 text-left text-sm font-display tracking-wider">Beschreibung</th>
-                  <th className="px-4 py-3 text-left text-sm font-display tracking-wider">Kategorie</th>
-                  <th className="px-4 py-3 text-right text-sm font-display tracking-wider">Betrag</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-display tracking-wider whitespace-nowrap">Status</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-display tracking-wider whitespace-nowrap">Datum</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-display tracking-wider whitespace-nowrap">Beschreibung</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-display tracking-wider whitespace-nowrap">Kategorie</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm font-display tracking-wider whitespace-nowrap">Betrag</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300/50 dark:divide-gray-700/50">
@@ -287,7 +287,7 @@ export const MonthlyTransactions = () => {
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .map(transaction => (
                     <tr key={transaction.id} className="hover:bg-gray-200/30 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="px-4 py-3">
+                      <td className="px-2 md:px-4 py-2 md:py-3">
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(transaction.id)}
@@ -295,7 +295,7 @@ export const MonthlyTransactions = () => {
                           className="w-4 h-4 rounded"
                         />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 md:px-4 py-2 md:py-3">
                         <button
                           onClick={() => toggleTransactionPending(transaction.id)}
                           className="hover:text-purple-600 transition-colors"
@@ -308,12 +308,12 @@ export const MonthlyTransactions = () => {
                           )}
                         </button>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                      <td className="px-2 md:px-4 py-2 md:py-3 text-sm text-gray-900 dark:text-white whitespace-nowrap">
                         {isValidDate(new Date(transaction.date)) ? formatDate(new Date(transaction.date)) : 'Ungültig'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{transaction.description}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{transaction.category}</td>
-                      <td className="px-4 py-3 text-right text-sm font-display">
+                      <td className="px-2 md:px-4 py-2 md:py-3 text-sm text-gray-900 dark:text-white max-w-[120px] md:max-w-none truncate">{transaction.description}</td>
+                      <td className="px-2 md:px-4 py-2 md:py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">{transaction.category}</td>
+                      <td className="px-2 md:px-4 py-2 md:py-3 text-right text-sm font-display">
                         <span className={transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}>
                           {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                         </span>

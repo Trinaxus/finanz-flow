@@ -277,38 +277,40 @@ export const TransactionManager = () => {
               {/* Month Header */}
               <div
                 onClick={() => toggleMonth(monthKey)}
-                className="w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between hover:bg-gray-200/50 dark:hover:bg-gray-700/30 cursor-pointer"
+                className="w-full px-3 md:px-6 py-3 md:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 hover:bg-gray-200/50 dark:hover:bg-gray-700/30 cursor-pointer"
               >
-                <div className="flex items-center gap-2 md:gap-4">
+                <div className="flex items-center gap-2 md:gap-4 min-w-0">
                   {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400" />
+                    <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400" />
+                    <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
                   )}
-                  <span className="text-sm md:text-base font-display text-gray-900 dark:text-white">{monthName}</span>
-                  <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                    ({monthTransactions.length} {monthTransactions.length === 1 ? 'Transaktion' : 'Transaktionen'})
+                  <span className="text-sm md:text-base font-display text-gray-900 dark:text-white truncate">{monthName}</span>
+                  <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    ({monthTransactions.length})
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 md:gap-4">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Einnahmen</span>
-                    <span className="text-sm md:text-base font-display text-emerald-700 dark:text-emerald-400">
-                      {formatAmount(totals.income)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Ausgaben</span>
-                    <span className="text-sm md:text-base font-display text-rose-700 dark:text-rose-400">
-                      {formatAmount(totals.expenses)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Bilanz</span>
-                    <span className={`text-sm md:text-base font-display ${totals.balance >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
-                      {formatAmount(totals.balance)}
-                    </span>
+                <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 w-full md:w-auto">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">Ein</span>
+                      <span className="text-xs md:text-sm font-display text-emerald-700 dark:text-emerald-400">
+                        {formatAmount(totals.income)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">Aus</span>
+                      <span className="text-xs md:text-sm font-display text-rose-700 dark:text-rose-400">
+                        {formatAmount(totals.expenses)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">Bilanz</span>
+                      <span className={`text-xs md:text-sm font-display ${totals.balance >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                        {formatAmount(totals.balance)}
+                      </span>
+                    </div>
                   </div>
 
                   <button
@@ -316,7 +318,7 @@ export const TransactionManager = () => {
                       e.stopPropagation();
                       setQuickInsertMonth(monthKey);
                     }}
-                    className="p-2 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-200/50 dark:hover:bg-gray-700/30 rounded-lg transition-colors"
+                    className="p-2 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-200/50 dark:hover:bg-gray-700/30 rounded-lg transition-colors flex-shrink-0"
                     title="Bestehende Transaktionen einfügen"
                   >
                     <Pencil className="w-3 h-3 md:w-3.5 md:h-3.5" />
@@ -327,10 +329,10 @@ export const TransactionManager = () => {
               {/* Transactions Table */}
               <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[640px]">
                     <thead className="bg-gray-200/50 dark:bg-gray-900/50 border-b border-gray-300/50 dark:border-gray-700/50">
                       <tr>
-                        <th className="px-2 md:px-6 py-3 text-left text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">
+                        <th className="px-2 md:px-6 py-3 text-left text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             Status
                             <div className="flex gap-1">
@@ -349,11 +351,11 @@ export const TransactionManager = () => {
                             </div>
                           </div>
                         </th>
-                        <th className="px-2 md:px-6 py-3 text-left text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">Datum</th>
-                        <th className="px-2 md:px-6 py-3 text-left text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">Beschreibung</th>
-                        <th className="px-2 md:px-6 py-3 text-left text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">Kategorie</th>
-                        <th className="px-2 md:px-6 py-3 text-right text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">Betrag</th>
-                        <th className="px-2 md:px-6 py-3 text-right text-xs md:text-sm font-display tracking-wider uppercase text-gray-700 dark:text-gray-300">Aktionen</th>
+                        <th className="px-2 md:px-6 py-3 text-left text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">Datum</th>
+                        <th className="px-2 md:px-6 py-3 text-left text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">Beschreibung</th>
+                        <th className="px-2 md:px-6 py-3 text-left text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">Kategorie</th>
+                        <th className="px-2 md:px-6 py-3 text-right text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">Betrag</th>
+                        <th className="px-2 md:px-6 py-3 text-right text-[10px] md:text-xs font-display tracking-wider uppercase text-gray-700 dark:text-gray-300 whitespace-nowrap">Aktionen</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-300/50 dark:divide-gray-700/50">
@@ -374,32 +376,32 @@ export const TransactionManager = () => {
                                 )}
                               </button>
                             </td>
-                            <td className="px-2 md:px-6 py-3 md:py-4">
-                              <span className="text-sm font-display tracking-wider text-gray-900 dark:text-white">{formatDate(new Date(transaction.date))}</span>
+                            <td className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                              <span className="text-xs md:text-sm font-display tracking-wider text-gray-900 dark:text-white">{formatDate(new Date(transaction.date))}</span>
                             </td>
-                            <td className="px-2 md:px-6 py-3 md:py-4">
-                              <div className="flex items-center gap-2">
+                            <td className="px-2 md:px-6 py-3 md:py-4 min-w-0">
+                              <div className="flex items-center gap-2 min-w-0">
                                 {isRecurring ? (
-                                  <Repeat className="w-4 h-4 text-purple-700 dark:text-purple-400" />
+                                  <Repeat className="w-4 h-4 text-purple-700 dark:text-purple-400 flex-shrink-0" />
                                 ) : (
-                                  <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                                  <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                                 )}
-                                <span className="text-sm font-display tracking-wider text-gray-900 dark:text-white">{transaction.description}</span>
+                                <span className="text-xs md:text-sm font-display tracking-wider text-gray-900 dark:text-white truncate">{transaction.description}</span>
                               </div>
                             </td>
-                            <td className="px-2 md:px-6 py-3 md:py-4">
-                              <span className="px-2 py-1 rounded-full text-sm font-display tracking-wider bg-gray-200/80 dark:bg-gray-700/50 text-gray-900 dark:text-white">
+                            <td className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                              <span className="px-2 py-1 rounded-full text-xs md:text-sm font-display tracking-wider bg-gray-200/80 dark:bg-gray-700/50 text-gray-900 dark:text-white">
                                 {transaction.category}
                               </span>
                             </td>
-                            <td className="px-2 md:px-6 py-3 md:py-4 text-right">
-                              <span className={`text-sm font-display tracking-wider ${
+                            <td className="px-2 md:px-6 py-3 md:py-4 text-right whitespace-nowrap">
+                              <span className={`text-xs md:text-sm font-display tracking-wider ${
                                 transaction.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                               }`}>
                                 {formatAmount(transaction.amount)}
                               </span>
                             </td>
-                            <td className="px-2 md:px-6 py-3 md:py-4 text-right">
+                            <td className="px-2 md:px-6 py-3 md:py-4 text-right whitespace-nowrap">
                               <div className="flex gap-1 md:gap-2 justify-end">
                                 <button
                                   onClick={() => setEditingTransaction(transaction)}
