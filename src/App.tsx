@@ -18,13 +18,10 @@ function App() {
   const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
-    const bgColor = theme === 'dark' ? '#0F172A' : '#EFEBE3';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', bgColor);
+      meta.setAttribute('content', theme === 'dark' ? '#0F172A' : '#EFEBE3');
     }
-    document.body.style.backgroundColor = bgColor;
-    document.documentElement.style.backgroundColor = bgColor;
   }, [theme]);
 
   const currentYear = new Date().getFullYear();
