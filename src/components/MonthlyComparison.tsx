@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { CalendarDays } from 'lucide-react';
 import { useStore } from '../store';
@@ -9,6 +9,20 @@ export const MonthlyComparison = () => {
   const { transactions, selectedYear, setSelectedMonth } = useStore();
 
   const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+  const [barSize, setBarSize] = useState(24);
+  useEffect(() => {
+    const update = () => {
+      const width = window.innerWidth;
+      const plot = Math.max(0, width - 128);
+      const size = Math.max(10, Math.min(24, Math.floor(plot * 0.8 / 12)));
+      setBarSize(size);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  const barGap = -barSize;
 
   const { categories, chartData, yDomain, yTicks } = useMemo(() => {
     const categorySet = new Set<string>();
@@ -109,7 +123,7 @@ export const MonthlyComparison = () => {
       
       <div className="h-[620px] rounded-2xl bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm p-6 border border-gray-200/10">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} barGap={-24} barCategoryGap="20%" margin={{ top: 10, right: 10, bottom: 90, left: 0 }}>
+          <BarChart data={chartData} barGap={barGap} barCategoryGap="20%" margin={{ top: 10, right: 10, bottom: 90, left: 0 }}>
             <CartesianGrid 
               strokeDasharray="3 3" 
               stroke="#4b5563" 
@@ -167,7 +181,7 @@ export const MonthlyComparison = () => {
                   dataKey={`pos_${category}`}
                   name={category}
                   stackId="pos"
-                  barSize={24}
+                  barSize={barSize}
                   fill={categoryColors[category]}
                   onClick={(data: any) => {
                     if (data && typeof data.month === 'number') {
@@ -180,7 +194,7 @@ export const MonthlyComparison = () => {
                   dataKey={`neg_${category}`}
                   name={category}
                   stackId="neg"
-                  barSize={24}
+                  barSize={barSize}
                   fill={categoryColors[category]}
                   onClick={(data: any) => {
                     if (data && typeof data.month === 'number') {
