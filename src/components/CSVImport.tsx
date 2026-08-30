@@ -15,13 +15,15 @@ export const CSVImport = () => {
   const [pendingTransactions, setPendingTransactions] = useState<Partial<Transaction>[]>([]);
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedImportMonths, setSelectedImportMonths] = useState<string[]>([]);
+  const [replaceExisting, setReplaceExisting] = useState(false);
   const { 
     addTransaction, 
     addRecurringTransaction,
     transactions,
     recurringTransactions,
     deleteTransactionsByMonth,
-    deleteTransactions
+    deleteTransactions,
+    deleteRecurringTransaction
   } = useStore();
 
   // Get unique months from transactions
@@ -263,15 +265,20 @@ export const CSVImport = () => {
   };
 
   const handleImportSelected = () => {
+    if (replaceExisting) {
+      deleteTransactions(transactions.map(t => t.id));
+      recurringTransactions.forEach(t => deleteRecurringTransaction(t.id));
+    }
     const toImport = pendingTransactions.filter(t => {
       const date = new Date(t.date!);
       const key = `${date.getFullYear()}-${date.getMonth()}`;
       return selectedImportMonths.includes(key);
     });
     toImport.forEach(t => {
-      addTransaction(t);
       if (t.isRecurring && t.recurringInterval) {
-        addRecurringTransaction({ ...t, id: crypto.randomUUID() });
+        addRecurringTransaction(t);
+      } else {
+        addTransaction(t);
       }
     });
     setPendingTransactions([]);
@@ -468,6 +475,16 @@ export const CSVImport = () => {
                 <p className="text-center text-gray-500 py-8">Keine Buchungen zur Auswahl</p>
               )}
             </div>
+
+            <label className="flex items-center gap-2 mt-4 text-sm text-rose-600 dark:text-rose-400 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={replaceExisting}
+                onChange={(e) => setReplaceExisting(e.target.checked)}
+                className="w-4 h-4 rounded"
+              />
+              <span>Vorhandene Daten vor dem Import löschen</span>
+            </label>
 
             <div className="flex gap-4 mt-6">
               <button
