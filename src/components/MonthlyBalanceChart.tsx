@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { CalendarRange, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { CalendarRange, ChevronDown, ChevronUp } from 'lucide-react';
 import { useStore } from '../store';
 import { formatDate } from '../utils/dateUtils';
 import { CATEGORY_COLORS } from './CategoryAnalysis';
@@ -168,23 +168,18 @@ export const MonthlyBalanceChart = () => {
     );
   };
 
-  const handlePreviousMonth = () => {
-    if (selectedMonth === 0) {
-      setSelectedMonth(11);
-      setSelectedYear(selectedYear - 1);
-    } else {
-      setSelectedMonth(selectedMonth - 1);
-    }
-  };
+  const monthOptions = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 
-  const handleNextMonth = () => {
-    if (selectedMonth === 11) {
-      setSelectedMonth(0);
-      setSelectedYear(selectedYear + 1);
-    } else {
-      setSelectedMonth(selectedMonth + 1);
-    }
-  };
+  const availableYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = new Set<number>();
+    years.add(currentYear);
+    years.add(currentYear - 1);
+    years.add(currentYear + 1);
+    years.add(selectedYear);
+    transactions.forEach(t => years.add(new Date(t.date).getFullYear()));
+    return Array.from(years).sort((a, b) => b - a);
+  }, [transactions, selectedYear]);
 
   return (
     <div className="rounded-2xl bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/10 overflow-hidden">
@@ -192,37 +187,29 @@ export const MonthlyBalanceChart = () => {
         onClick={() => setExpanded(e => !e)}
         className="w-full p-4 md:p-6 flex items-center justify-between hover:bg-white/5 dark:hover:bg-black/5 transition-colors"
       >
-        <div className="flex items-center gap-2">
-          <CalendarRange className="w-6 h-6 text-purple-600" />
-          <h2 className="text-xl font-display">Monatsverlauf</h2>
+        <div className="flex items-center gap-2 min-w-0">
+          <CalendarRange className="w-6 h-6 text-purple-600 flex-shrink-0" />
+          <h2 className="text-base md:text-xl font-display truncate">Monatsverlauf</h2>
         </div>
-        <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={handlePreviousMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="px-2 py-1.5 rounded-lg border border-gray-300/50 dark:border-gray-700/50 bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm text-sm"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-medium min-w-[80px] text-center">{months[selectedMonth]}</span>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-1 rounded-lg border border-gray-700/50 bg-gray-900/50 dark:bg-gray-800/50 backdrop-blur-sm"
-            >
-              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            onClick={handleNextMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            {availableYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="px-2 py-1.5 rounded-lg border border-gray-300/50 dark:border-gray-700/50 bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm text-sm"
           >
-            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
+            {monthOptions.map((name, index) => (
+              <option key={index} value={index}>{name}</option>
+            ))}
+          </select>
           {expanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
         </div>
       </button>
