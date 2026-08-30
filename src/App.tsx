@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -17,6 +17,13 @@ function App() {
   const neuralBackground = useStore(state => state.neuralBackground);
   const { transactions, selectedYear, setSelectedYear, selectedMonth, setSelectedMonth } = useStore();
   const [expanded, setExpanded] = useState(true);
+
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', theme === 'dark' ? '#0F172A' : '#EFEBE3');
+    }
+  }, [theme]);
 
   const currentYear = new Date().getFullYear();
   const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
