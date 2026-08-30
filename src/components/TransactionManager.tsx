@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Edit2, Trash2, Filter, Plus, Repeat, Calendar, Search, ChevronDown, ChevronUp, Clock, Download, Zap, Check, Minus, CheckCircle2, CheckCircle, Pencil } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Edit2, Trash2, Filter, Plus, Repeat, Calendar, Search, ChevronDown, ChevronUp, Clock, Zap, CheckCircle, Pencil } from 'lucide-react';
 import { useStore } from '../store';
 import { formatDate, formatMonth, isValidDate } from '../utils/dateUtils';
 import { TransactionForm } from './TransactionForm';
@@ -58,7 +58,7 @@ export const TransactionManager = () => {
     });
 
     // Sort transactions within each group by date descending
-    groups.forEach((transactions, key) => {
+    groups.forEach((transactions) => {
       transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
 
@@ -143,16 +143,6 @@ export const TransactionManager = () => {
         }
       }
     });
-  };
-
-  const areAllTransactionsConfirmed = (monthKey: string) => {
-    return transactions
-      .filter(t => {
-        const transactionDate = new Date(t.date);
-        const transactionKey = `${transactionDate.getFullYear()}-${transactionDate.getMonth()}`;
-        return transactionKey === monthKey;
-      })
-      .every(t => !t.isPending);
   };
 
   const formatMonthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;

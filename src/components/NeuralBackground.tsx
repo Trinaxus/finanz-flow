@@ -74,7 +74,7 @@ export const NeuralBackground: React.FC = () => {
     function animate() {
       frameRef.current++;
       
-      ctx.fillStyle = theme === 'dark' ? '#0F172A' : '#F9FAFB';
+      ctx.fillStyle = theme === 'dark' ? '#0F172A' : '#EFEBE3';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (neuralBackground) {
@@ -82,8 +82,8 @@ export const NeuralBackground: React.FC = () => {
           canvas.width / 2, canvas.height / 2, 0,
           canvas.width / 2, canvas.height / 2, canvas.width / 2
         );
-        gradient.addColorStop(0, theme === 'dark' ? '#1E293B' : '#F8FAFC');
-        gradient.addColorStop(1, theme === 'dark' ? '#0F172A' : '#F9FAFB');
+        gradient.addColorStop(0, theme === 'dark' ? '#1E293B' : '#E9E3DA');
+        gradient.addColorStop(1, theme === 'dark' ? '#0F172A' : '#F2EFE8');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 

@@ -68,3 +68,20 @@
     background-position: 0% 50%;
   }
 }
+
+/* Hellmodus: Karten besser sichtbar und Hintergrund wärmer/dunkler */
+.light {
+  color-scheme: light;
+}
+
+.light .bg-white\/5,
+.light .bg-white\/10 {
+  background-color: rgba(252, 250, 245, 0.92) !important;
+  box-shadow: 0 4px 6px -1px rgba(80, 70, 60, 0.08), 0 2px 4px -1px rgba(80, 70, 60, 0.04) !important;
+}
+
+.light .border-gray-200\/10,
+.light .border-gray-300\/50,
+.light .border-gray-200\/50 {
+  border-color: rgba(140, 130, 120, 0.25) !important;
+}
