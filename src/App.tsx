@@ -14,7 +14,6 @@ import { useStore } from './store';
 
 function App() {
   const theme = useStore(state => state.theme);
-  const neuralBackground = useStore(state => state.neuralBackground);
   const { transactions, selectedYear, setSelectedYear, selectedMonth, setSelectedMonth } = useStore();
   const [expanded, setExpanded] = useState(true);
 
